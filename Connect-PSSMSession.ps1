@@ -41,7 +41,8 @@ function Connect-PSSMSession
         ## fqdn doesnt seem to be needed for credssp, leave it out, if it breaks, insert here
         }
         catch {
-        Write-Warning "--Unable to resolve host name! Should probably make it stop here?"
+        Write-Error "Unable to resolve host name!" -ErrorAction Stop
+
         }
     }
     else
@@ -53,16 +54,9 @@ function Connect-PSSMSession
     #was a remote profile specified or the default used.
     
     #no creds provided, search for some, but make sure you've got a FQDN to work with to figure out domain
-    if(-not $Credential -and $fqdn)
+    if(-not $Credential)
     {
-        $domain = $fqdn.Substring($fqdn.IndexOf('.')+1)
-        $tempc = gv |?{$_.value -is "System.Management.Automation.PSCredential"} | ? {$domain -match $_.value.username.split('\')[0]} | select -First 1
-        if($tempc)
-        {
-            Write-Verbose "Credentials found in $($tempc.name)"
-            $Credential=$tempc.value
-        }
-
+            $Credential = Find-Credential -computername $fqdn
     }
     else
     {
