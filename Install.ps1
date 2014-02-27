@@ -24,7 +24,7 @@ $wc = New-Object System.Net.WebClient
 $wc.DownloadFile("https://raw.github.com/jrich523/PowerShell-Session-Manager/master/PSSessionManager.psd1","$installDirectory\PSSessionManager.psd1")
 Push-Location
 cd $InstallDirectory
-(Import-LocalizedData -FileName Nimble.psd1).filelist | %{$wc.DownloadFile("https://raw.github.com/jrich523/PowerShell-Session-Manager/master/$_","$installDirectory\$_")}
+(Import-LocalizedData -FileName PSSessionManager.psd1).filelist | %{$wc.DownloadFile("https://raw.github.com/jrich523/PowerShell-Session-Manager/master/$_","$installDirectory\$_")}
 gci | Unblock-File
 Pop-Location
 
