@@ -159,7 +159,7 @@ function Connect-PSSMSession
             #tag profile info
             Invoke-Command -Session $session -ScriptBlock {$RemoteProfile = $args[0]} -ArgumentList $RemoteProfile
             Invoke-Command -Session $session -FilePath $PSScriptRoot\send-pssmfileopen.ps1
-            Invoke-Command -Session $session -ScriptBlock {$global:RemoteConnection = $args[0]} -ArgumentList @{HostName=[net.dns]::GetHostEntry('localhost').HostName;Port=12340 + $psise.PowerShellTabs.IndexOf($psise.CurrentPowerShellTab)}
+            if($psise){Invoke-Command -Session $session -ScriptBlock {$global:RemoteConnection = $args[0]} -ArgumentList @{HostName=[net.dns]::GetHostEntry('localhost').HostName;Port=12340 + $psise.PowerShellTabs.IndexOf($psise.CurrentPowerShellTab)}}
 
             $session | Add-Member -MemberType NoteProperty -Name RemoteProfile -Value $RemoteProfile
         }
