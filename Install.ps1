@@ -13,7 +13,7 @@ if ('' -eq $InstallDirectory)
         Write-Error "$personalModules does not exist"
     }
 
-    $InstallDirectory = Join-Path -Path $personalModules -ChildPath Nimble
+    $InstallDirectory = Join-Path -Path $personalModules -ChildPath PSSessionManager
 }
 if (!(Test-Path $InstallDirectory))
 {
