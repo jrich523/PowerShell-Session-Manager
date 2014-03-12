@@ -1,6 +1,9 @@
 PowerShell-Session-Manager
 ==========================
 
+## Install ##
+	iex (new-object System.Net.WebClient).DownloadString('https://raw.github.com/jrich523/PowerShell-Session-Manager/master/Install.ps1')
+
 # *Simplify Remoting!* #
 
 ## Features ##

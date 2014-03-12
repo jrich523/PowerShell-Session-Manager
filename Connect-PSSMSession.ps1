@@ -50,7 +50,7 @@ function Connect-PSSMSession
         $fqdn=$ComputerName
     }
     #change to FQDN if you end up using that, which as of now doesnt seem to be needed.
-    Write-Warning "Connecting to $computerName"
+    Write-Warning "Connecting to $fqdn"
     #was a remote profile specified or the default used.
     
     #no creds provided, search for some, but make sure you've got a FQDN to work with to figure out domain
@@ -68,7 +68,7 @@ function Connect-PSSMSession
 
     #is there already an active session?
     $session = Get-PSSession | ?{$_.ComputerName -eq $computername}
-    Write-Verbose "Found $($session.count) matching sessions"
+    Write-Verbose "Found $($session.count) matching session(s)"
 
     if($PSBoundParameters.ContainsKey("Credential") -and $session)
     {
@@ -87,12 +87,12 @@ function Connect-PSSMSession
         #its not credssp, can we make it?!
         if(-not $credssp -and $Credential -and [bool](Test-WSMan $computername -Credential $Credential -Authentication Credssp -ea 0))
         {
-            Write-Verbose "no credssp but it can be done, so we shall do it!"
+            Write-Verbose "not credssp but it can be done, so we shall do it!"
             Remove-PSSession -Session $session
             #$session = New-PSSession -ComputerName $computername -Credential $Credential -Authentication Credssp
             $session = $null #exact same if will do this again
         }
-        else{write-verbose "Session found without credssp"}
+        else{write-verbose "Session found with credssp"}
         Write-Verbose "Found $($session.count) matching sessions"
     }
     #################################
@@ -155,11 +155,16 @@ function Connect-PSSMSession
         if($session -and -not $NoProfile -and (test-path $RemoteProfile))##TODO: do i need to check session? it should be there by now
         {
             #load profile
+            Write-Verbose "Injecting profile located at $RemoteProfile"
             Invoke-Command -Session $session -FilePath $RemoteProfile
             #tag profile info
             Invoke-Command -Session $session -ScriptBlock {$RemoteProfile = $args[0]} -ArgumentList $RemoteProfile
-            Invoke-Command -Session $session -FilePath $PSScriptRoot\send-pssmfileopen.ps1
-            if($psise){Invoke-Command -Session $session -ScriptBlock {$global:RemoteConnection = $args[0]} -ArgumentList @{HostName=[net.dns]::GetHostEntry('localhost').HostName;Port=12340 + $psise.PowerShellTabs.IndexOf($psise.CurrentPowerShellTab)}}
+            
+            if($psise)
+            {
+                Invoke-Command -Session $session -ScriptBlock {$global:RemoteConnection = $args[0]} -ArgumentList @{HostName=[net.dns]::GetHostEntry('localhost').HostName;Port=12340 + $psise.PowerShellTabs.IndexOf($psise.CurrentPowerShellTab)}
+                Invoke-Command -Session $session -FilePath $PSScriptRoot\send-pssmfileopen.ps1
+            }
 
             $session | Add-Member -MemberType NoteProperty -Name RemoteProfile -Value $RemoteProfile
         }
@@ -187,7 +192,7 @@ function Connect-PSSMSession
         }
         else
         {
-            Write-Verbose $session.Id
+            Write-Verbose "Session ID: $($session.Id)"
             Enter-PSSession  -id $session.id
         }
     }
