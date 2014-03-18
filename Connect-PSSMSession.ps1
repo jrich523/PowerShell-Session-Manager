@@ -163,6 +163,7 @@ function Connect-PSSMSession
             if($psise)
             {
                 Invoke-Command -Session $session -ScriptBlock {$global:RemoteConnection = $args[0]} -ArgumentList @{HostName=[net.dns]::GetHostEntry('localhost').HostName;Port=12340 + $psise.PowerShellTabs.IndexOf($psise.CurrentPowerShellTab)}
+                ## plugin system?
                 Invoke-Command -Session $session -FilePath $PSScriptRoot\send-pssmfileopen.ps1
             }
 

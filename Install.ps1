@@ -1,4 +1,7 @@
 param([string]$InstallDirectory)
+$ModName = "PSSessionManager"
+$repo = "PowerShell-Session-Manager"
+$userid = "jrich523"
 
 if ('' -eq $InstallDirectory)
 {
@@ -13,7 +16,7 @@ if ('' -eq $InstallDirectory)
         Write-Error "$personalModules does not exist"
     }
 
-    $InstallDirectory = Join-Path -Path $personalModules -ChildPath PSSessionManager
+    $InstallDirectory = Join-Path -Path $personalModules -ChildPath $ModName
 }
 if (!(Test-Path $InstallDirectory))
 {
@@ -21,10 +24,10 @@ if (!(Test-Path $InstallDirectory))
 }
 
 $wc = New-Object System.Net.WebClient
-$wc.DownloadFile("https://raw.github.com/jrich523/PowerShell-Session-Manager/master/PSSessionManager.psd1","$installDirectory\PSSessionManager.psd1")
+$wc.DownloadFile("https://raw.github.com/$userid/$repo/master/$modname.psd1","$installDirectory\PSSessionManager.psd1")
 Push-Location
 cd $InstallDirectory
-(Import-LocalizedData -FileName PSSessionManager.psd1).filelist | %{$wc.DownloadFile("https://raw.github.com/jrich523/PowerShell-Session-Manager/master/$_","$installDirectory\$_")}
+(Import-LocalizedData -FileName "$ModName.psd1").filelist | %{$wc.DownloadFile("https://raw.github.com/$userid/$repo/master/$_","$installDirectory\$_")}
 gci | Unblock-File
 Pop-Location
 

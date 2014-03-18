@@ -30,7 +30,7 @@ function Start-PSSMListener
 
         $isLocalHost = $computername -match $env:COMPUTERNAME
 
-    
+        ## plugin system
         if($eventargs.command -eq "open")
         {
                
@@ -54,6 +54,7 @@ function Start-PSSMListener
             $psise.CurrentPowerShellTab.Files.SelectedFile=$psise.CurrentPowerShellTab.Files.Add($path)
 
         }
+        ## end plugin
     }
 
     if($psise)
