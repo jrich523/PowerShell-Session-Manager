@@ -50,13 +50,14 @@ function Connect-PSSMSession
         $fqdn=$ComputerName
     }
     #change to FQDN if you end up using that, which as of now doesnt seem to be needed.
-    Write-Warning "Connecting to $fqdn"
+    Write-host "Connecting to $fqdn" -ForegroundColor Green
     #was a remote profile specified or the default used.
     
     #no creds provided, search for some, but make sure you've got a FQDN to work with to figure out domain
     if(-not $Credential)
     {
             $Credential = Find-Credential -computername $fqdn
+            Write-Verbose "Using $($Credential.UserName)"
     }
     else
     {
@@ -128,28 +129,31 @@ function Connect-PSSMSession
         else
         {
             Write-Verbose "profile matches! lets use it!"
-            Write-Warning "Matching Session found"
+            Write-Host "Matching Session found" -ForegroundColor Green
         }
 
     }
 
     if(-not $session) #no session, lets make one
     {
-        Write-Warning "Creating New session"
+        Write-Host "Creating New session" -ForegroundColor Green
         #can we do credssp
         if($Credential -and [bool](Test-WSMan $computername -Credential $Credential -Authentication Credssp -ea 0))
         {
+            Write-Verbose "Creating session with CredSSP"
             $session = New-PSSession -ComputerName $ComputerName -Credential $Credential -Authentication Credssp
         }
         #can we do it with local creds?
         elseif(Test-WSMan $computername -Authentication Default -ea 0)
         {
+            Write-Verbose "No creds provided, attempting with current user creds, no CredSSP"
             $session = New-PSSession -ComputerName $computername -ea 0
         }
         #local creads dont work, try found creds
         
         if(-not $session -and $credential -and [bool](Test-WSMan -ComputerName $computername -Credential $Credential -Authentication Default -ea 0))
         {
+            Write-Verbose "Using credentials to create session without CredSSP"
             $session = New-PSSession -ComputerName $computername -Credential $Credential
         }
         if($session -and -not $NoProfile -and (test-path $RemoteProfile))##TODO: do i need to check session? it should be there by now
@@ -171,6 +175,7 @@ function Connect-PSSMSession
         }
         elseif($session)
         {
+            write-verbose "Checking existing session for profile injection"
             if(-not $NoProfile)
             {
                 #profile was requests but not found, notify the user
@@ -185,8 +190,8 @@ function Connect-PSSMSession
     if($session)
     {
         ## tag profile info
-        Write-Warning "Connecting as: $($session.Runspace.ConnectionInfo.Credential.UserName)"
-        Write-Warning "Authentication Method: $($session.Runspace.ConnectionInfo.AuthenticationMechanism)"
+        Write-Host "Connecting as: $($session.Runspace.ConnectionInfo.Credential.UserName)" -ForegroundColor Green
+        Write-Host "Authentication Method: $($session.Runspace.ConnectionInfo.AuthenticationMechanism)" -ForegroundColor Green
         if($SessionOnly)
         {
             $session
