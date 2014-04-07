@@ -37,8 +37,12 @@ function Find-Credential
         $fqdn=$ComputerName
     }
     $domain = $fqdn.Substring($fqdn.IndexOf('.')+1)
-    $tempc = gv |?{$_.value -is "System.Management.Automation.PSCredential"} | ? {$domain -match $_.value.username.split('\')[0]} 
-    if(-not $all){$temppc = $temppc | select -First 1}
+    $tempc = gv |?{$_.value -is "System.Management.Automation.PSCredential"} | ? {$domain -like "$($_.value.username.split('\')[0])*"} 
+    if(-not $all)
+    {
+        Write-Verbose "Returning only first cred"
+        $tempc = $tempc | select -First 1
+    }
     if($tempc)
     {
         Write-Verbose "Credentials found in $($tempc.name)"
